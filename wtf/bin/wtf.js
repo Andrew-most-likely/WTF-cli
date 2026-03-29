@@ -119,27 +119,27 @@ const HR = c.dim + '─'.repeat(52) + c.reset
 async function getProcs() {
   if (process.platform !== 'win32') return si.processes()
 
-  // On Windows, systeminformation returns trimmed WorkingSetSize which is
-  // near-zero for paged-out processes. Use PowerShell WorkingSet64 instead,
-  // which matches what Task Manager shows.
-  return new Promise(resolve => {
-    const { execFile } = require('child_process')
+  // On Windows: si.processes() has accurate CPU% but near-zero memory (trimmed
+  // WorkingSetSize). PowerShell PrivateMemorySize64 has accurate memory but only
+  // cumulative CPU seconds. Fetch both and merge on PID.
+  const { execFile } = require('child_process')
+  const psMemory = new Promise(resolve => {
     execFile('powershell', ['-NoProfile', '-Command',
-      'Get-Process | Select-Object Name,Id,PrivateMemorySize64,CPU | ConvertTo-Json -Compress'
+      'Get-Process | Select-Object Id,PrivateMemorySize64 | ConvertTo-Json -Compress'
     ], { timeout: 8000 }, (err, stdout) => {
-      if (err) return si.processes().then(resolve).catch(() => resolve({ list: [] }))
+      if (err) return resolve({})
       try {
         const raw = JSON.parse(stdout)
-        const list = (Array.isArray(raw) ? raw : [raw]).map(p => ({
-          name:   (p.Name || '') + (p.Name && !p.Name.endsWith('.exe') ? '.exe' : ''),
-          pid:    p.Id,
-          memRss: p.PrivateMemorySize64 || 0,
-          cpu:    p.CPU || 0,
-        }))
-        resolve({ list })
-      } catch { si.processes().then(resolve).catch(() => resolve({ list: [] })) }
+        const map = {}
+        ;(Array.isArray(raw) ? raw : [raw]).forEach(p => { map[p.Id] = p.PrivateMemorySize64 || 0 })
+        resolve(map)
+      } catch { resolve({}) }
     })
   })
+
+  const [siProcs, memMap] = await Promise.all([si.processes(), psMemory])
+  const list = siProcs.list.map(p => ({ ...p, memRss: memMap[p.pid] ?? p.memRss }))
+  return { ...siProcs, list }
 }
 
 async function collect() {
