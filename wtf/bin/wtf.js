@@ -146,6 +146,10 @@ async function collect() {
   const need = (s) => ARGS.sections.includes(s)
   const needProcs = need('cpu') || need('mem')
 
+  // networkStats needs two samples to compute rates — prime it first,
+  // then the second call (after the other work completes) has a real delta.
+  if (need('net')) await si.networkStats().catch(() => {})
+
   const [cpuLoad, procs, mem, disk, net] = await Promise.all([
     need('cpu')   ? si.currentLoad()   : null,
     needProcs     ? getProcs()         : null,
