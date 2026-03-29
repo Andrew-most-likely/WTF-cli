@@ -1,8 +1,8 @@
 # wtf
 
-[![npm](https://img.shields.io/npm/v/wtfcli)](https://www.npmjs.com/package/wtfcli)
+[![npm](https://img.shields.io/npm/v/%40mightbeandrew%2Fwtfcli)](https://www.npmjs.com/package/@mightbeandrew/wtfcli)
 [![license](https://img.shields.io/github/license/Andrew-most-likely/WTF-cli)](LICENSE)
-[![node](https://img.shields.io/node/v/wtfcli)](https://nodejs.org)
+[![node](https://img.shields.io/node/v/%40mightbeandrew%2Fwtfcli)](https://nodejs.org)
 
 **Why is my computer slow right now?**
 
