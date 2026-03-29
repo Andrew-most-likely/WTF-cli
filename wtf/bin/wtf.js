@@ -221,7 +221,7 @@ function renderDisk(disk) {
       const pct    = Math.round(d.use)
       const label  = padEnd(c.white + d.fs + c.reset, 20)
       const usage  = `${fmtBytes(d.used)} / ${fmtBytes(d.size)}`
-      const mount  = ARGS.verbose ? `  ${c.gray}${d.mount}${c.reset}` : ''
+      const mount  = ARGS.verbose && d.mount !== d.fs ? `  ${c.gray}${d.mount}${c.reset}` : ''
       lines.push(`   ${label}  ${bar(pct)}  ${pctColor(pct)}${pct}%${c.reset}  ${c.gray}${usage}${c.reset}${mount}`)
     })
 
@@ -231,16 +231,17 @@ function renderDisk(disk) {
 function renderNet(nets) {
   const lines = [`${c.bold}${c.cyan} NET${c.reset}`]
 
-  const active = nets.filter(n => n.rx_sec !== null)
-  if (!active.length) {
-    lines.push(`   ${c.gray}no active interfaces${c.reset}`)
+  const visible = nets.filter(n => n.iface)
+  if (!visible.length) {
+    lines.push(`   ${c.gray}no interfaces found${c.reset}`)
     return lines
   }
 
-  active.forEach(n => {
+  visible.forEach(n => {
     const iface  = padEnd(c.white + n.iface + c.reset, 14)
-    const rx     = `${c.green}↓ ${padStart(fmtSpeed(n.rx_sec), 12)}${c.reset}`
-    const tx     = `${c.yellow}↑ ${padStart(fmtSpeed(n.tx_sec), 12)}${c.reset}`
+    const noData = n.rx_sec === null
+    const rx     = noData ? `${c.gray}↓          --${c.reset}` : `${c.green}↓ ${padStart(fmtSpeed(n.rx_sec), 12)}${c.reset}`
+    const tx     = noData ? `${c.gray}↑          --${c.reset}` : `${c.yellow}↑ ${padStart(fmtSpeed(n.tx_sec), 12)}${c.reset}`
     const totals = ARGS.verbose
       ? `  ${c.gray}total ↓ ${fmtBytes(n.rx_bytes)}  ↑ ${fmtBytes(n.tx_bytes)}${c.reset}`
       : ''
