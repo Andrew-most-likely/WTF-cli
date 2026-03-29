@@ -142,7 +142,7 @@ function renderCPU(cpuLoad, procs) {
   ]
 
   procs.list
-    .filter(p => p.cpu > 0)
+    .filter(p => p.cpu > 0 && p.name !== 'System Idle Process')
     .sort((a, b) => b.cpu - a.cpu)
     .slice(0, ARGS.top)
     .forEach(p => {
