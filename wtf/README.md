@@ -30,7 +30,7 @@ $ wtf
 ## Install
 
 ```sh
-npm install -g wtf-cli
+npm install -g wtfcli
 ```
 
 ## Usage

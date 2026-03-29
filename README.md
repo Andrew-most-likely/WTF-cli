@@ -1,8 +1,8 @@
 # wtf
 
-[![npm](https://img.shields.io/npm/v/wtf-cli)](https://www.npmjs.com/package/wtf-cli)
+[![npm](https://img.shields.io/npm/v/wtfcli)](https://www.npmjs.com/package/wtfcli)
 [![license](https://img.shields.io/github/license/Andrew-most-likely/WTF-cli)](LICENSE)
-[![node](https://img.shields.io/node/v/wtf-cli)](https://nodejs.org)
+[![node](https://img.shields.io/node/v/wtfcli)](https://nodejs.org)
 
 **Why is my computer slow right now?**
 
@@ -34,7 +34,7 @@ $ wtf
 ## Install
 
 ```sh
-npm install -g wtf-cli
+npm install -g wtfcli
 ```
 
 ## Usage
