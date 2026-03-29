@@ -34,7 +34,7 @@ $ wtf
 ## Install
 
 ```sh
-npm install -g wtfcli
+npm install -g @mightbeandrew/wtfcli
 ```
 
 ## Usage
