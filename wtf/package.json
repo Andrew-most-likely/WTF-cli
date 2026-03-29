@@ -12,11 +12,11 @@
   "author": "Andrew-most-likely",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Andrew-most-likely/tool.git",
+    "url": "https://github.com/Andrew-most-likely/WTF-CLI.git",
     "directory": "wtf"
   },
-  "homepage": "https://github.com/Andrew-most-likely/tool/tree/main/wtf#readme",
+  "homepage": "https://github.com/Andrew-most-likely/WTF-CLI#readme",
   "bugs": {
-    "url": "https://github.com/Andrew-most-likely/tool/issues"
+    "url": "https://github.com/Andrew-most-likely/WTF-CLI/issues"
   }
 }
