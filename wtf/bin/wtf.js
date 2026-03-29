@@ -125,7 +125,7 @@ async function getProcs() {
   return new Promise(resolve => {
     const { execFile } = require('child_process')
     execFile('powershell', ['-NoProfile', '-Command',
-      'Get-Process | Select-Object Name,Id,WorkingSet64,CPU | ConvertTo-Json -Compress'
+      'Get-Process | Select-Object Name,Id,PrivateMemorySize64,CPU | ConvertTo-Json -Compress'
     ], { timeout: 8000 }, (err, stdout) => {
       if (err) return si.processes().then(resolve).catch(() => resolve({ list: [] }))
       try {
@@ -133,7 +133,7 @@ async function getProcs() {
         const list = (Array.isArray(raw) ? raw : [raw]).map(p => ({
           name:   (p.Name || '') + (p.Name && !p.Name.endsWith('.exe') ? '.exe' : ''),
           pid:    p.Id,
-          memRss: p.WorkingSet64 || 0,
+          memRss: p.PrivateMemorySize64 || 0,
           cpu:    p.CPU || 0,
         }))
         resolve({ list })
@@ -182,8 +182,9 @@ function renderCPU(cpuLoad, procs) {
 }
 
 function renderMem(mem, procs) {
-  const pct  = Math.round(mem.used / mem.total * 100)
-  const info = `${fmtBytes(mem.used)} / ${fmtBytes(mem.total)}`
+  const pressure = mem.total - mem.available
+  const pct  = Math.round(pressure / mem.total * 100)
+  const info = `${fmtBytes(pressure)} / ${fmtBytes(mem.total)}`
   const header = `${c.bold}${c.cyan} MEM${c.reset}  ${bar(pct)}  ${pctColor(pct)}${pct}%${c.reset}  ${c.gray}${info}${c.reset}`
   const lines = [header]
 
@@ -259,7 +260,7 @@ function diagnose({ cpuLoad, procs, mem, disk, net }) {
   }
 
   if (mem) {
-    const pct = mem.used / mem.total * 100
+    const pct = (mem.total - mem.available) / mem.total * 100
     if (pct > 90) {
       const grouped = procs ? Object.values(procs.list.reduce((acc, p) => {
         if (!p.memRss) return acc
