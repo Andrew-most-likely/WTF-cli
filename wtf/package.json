@@ -1,6 +1,6 @@
 {
   "name": "@mightbeandrew/wtfcli",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Why is my computer slow right now? One command that diagnoses CPU, memory, disk, and network.",
   "bin": { "wtf": "bin/wtf.js" },
   "dependencies": {

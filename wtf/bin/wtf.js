@@ -165,16 +165,22 @@ function renderMem(mem, procs) {
     lines.push(`   ${c.gray}free ${fmtBytes(mem.free)}  available ${fmtBytes(mem.available)}  swap ${fmtBytes(mem.swapused)} / ${fmtBytes(mem.swaptotal)}${c.reset}`)
   }
 
-  procs.list
-    .filter(p => p.memRss > 0)
-    .sort((a, b) => b.memRss - a.memRss)
-    .slice(0, ARGS.top)
-    .forEach(p => {
-      const name   = padEnd(c.white + p.name + c.reset, 32)
-      const memStr = padStart(c.yellow + fmtBytes(p.memRss) + c.reset, 10)
-      const extra  = ARGS.verbose ? `  ${c.gray}pid ${p.pid}${c.reset}` : ''
-      lines.push(`   ${name} ${memStr}${extra}`)
-    })
+  const grouped = Object.values(
+    procs.list.reduce((acc, p) => {
+      if (!p.memRss) return acc
+      if (!acc[p.name]) acc[p.name] = { name: p.name, memRss: 0, pids: [] }
+      acc[p.name].memRss += p.memRss
+      acc[p.name].pids.push(p.pid)
+      return acc
+    }, {})
+  ).sort((a, b) => b.memRss - a.memRss).slice(0, ARGS.top)
+
+  grouped.forEach(p => {
+    const name   = padEnd(c.white + p.name + c.reset, 32)
+    const memStr = padStart(c.yellow + fmtBytes(p.memRss) + c.reset, 10)
+    const extra  = ARGS.verbose ? `  ${c.gray}${p.pids.length > 1 ? `${p.pids.length} procs` : `pid ${p.pids[0]}`}${c.reset}` : ''
+    lines.push(`   ${name} ${memStr}${extra}`)
+  })
 
   return lines
 }
@@ -229,8 +235,13 @@ function diagnose({ cpuLoad, procs, mem, disk, net }) {
   if (mem) {
     const pct = mem.used / mem.total * 100
     if (pct > 90) {
-      const top = procs?.list.slice().sort((a, b) => b.memRss - a.memRss)[0]
-      notes.push(`${c.red}Critical RAM:${c.reset} ${Math.round(pct)}% used${top ? ` — ${top.name} holding ${fmtBytes(top.memRss)}` : ''}`)
+      const grouped = procs ? Object.values(procs.list.reduce((acc, p) => {
+        if (!p.memRss) return acc
+        if (!acc[p.name]) acc[p.name] = { name: p.name, memRss: 0 }
+        acc[p.name].memRss += p.memRss
+        return acc
+      }, {})).sort((a, b) => b.memRss - a.memRss)[0] : null
+      notes.push(`${c.red}Critical RAM:${c.reset} ${Math.round(pct)}% used${grouped ? ` — ${grouped.name} holding ${fmtBytes(grouped.memRss)}` : ''}`)
     } else if (pct > 75) {
       notes.push(`${c.yellow}High RAM:${c.reset} ${Math.round(pct)}% used (${fmtBytes(mem.used)} / ${fmtBytes(mem.total)})`)
     }
