@@ -116,13 +116,39 @@ function padStart(str, len) { return ' '.repeat(Math.max(0, len - plain(str).len
 const HR = c.dim + '─'.repeat(52) + c.reset
 
 // ── Collect ──────────────────────────────────────────────────────────────────
+async function getProcs() {
+  if (process.platform !== 'win32') return si.processes()
+
+  // On Windows, systeminformation returns trimmed WorkingSetSize which is
+  // near-zero for paged-out processes. Use PowerShell WorkingSet64 instead,
+  // which matches what Task Manager shows.
+  return new Promise(resolve => {
+    const { execFile } = require('child_process')
+    execFile('powershell', ['-NoProfile', '-Command',
+      'Get-Process | Select-Object Name,Id,WorkingSet64,CPU | ConvertTo-Json -Compress'
+    ], { timeout: 8000 }, (err, stdout) => {
+      if (err) return si.processes().then(resolve).catch(() => resolve({ list: [] }))
+      try {
+        const raw = JSON.parse(stdout)
+        const list = (Array.isArray(raw) ? raw : [raw]).map(p => ({
+          name:   (p.Name || '') + (p.Name && !p.Name.endsWith('.exe') ? '.exe' : ''),
+          pid:    p.Id,
+          memRss: p.WorkingSet64 || 0,
+          cpu:    p.CPU || 0,
+        }))
+        resolve({ list })
+      } catch { si.processes().then(resolve).catch(() => resolve({ list: [] })) }
+    })
+  })
+}
+
 async function collect() {
   const need = (s) => ARGS.sections.includes(s)
   const needProcs = need('cpu') || need('mem')
 
   const [cpuLoad, procs, mem, disk, net] = await Promise.all([
     need('cpu')   ? si.currentLoad()   : null,
-    needProcs     ? si.processes()     : null,
+    needProcs     ? getProcs()         : null,
     need('mem')   ? si.mem()           : null,
     need('disk')  ? si.fsSize()        : null,
     need('net')   ? si.networkStats()  : null,
