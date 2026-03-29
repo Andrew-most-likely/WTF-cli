@@ -1,0 +1,110 @@
+CLI IDEAS - UNREALIZED TOOLS
+=============================
+Generated: 2026-03-29
+
+=====================================
+PRIORITY BUILD: wtf
+=====================================
+"Why is my computer slow right now?"
+One command that tells you exactly what's eating CPU/memory/disk/network
+and WHY, in plain English. Not top. Not 10 tools. One answer.
+
+Example:
+  $ wtf
+  Chrome tab "docs.google.com" is using 4GB RAM (memory leak)
+  Dropbox is syncing 12,000 files (started 3 min ago)
+  Disk nearly full: node_modules in ~/old-project is 8GB
+
+Why it doesn't exist: OS tools (top, htop, lsof, df, netstat) each show
+one dimension. Nothing correlates them into a human-readable diagnosis.
+
+=====================================
+IDEA: did
+=====================================
+"What did I do today?"
+Reconstructs your workday from git commits, file edits, browser history,
+terminal history, and PRs. No manual journaling.
+
+Example:
+  $ did yesterday
+  9:02 - started on auth bug (branch: fix/oauth-redirect)
+  11:30 - 3 commits to tool repo
+  2:14 - reviewed PR #84 (approved)
+  4:50 - last activity
+
+Sources to pull from: git log, shell history (~/.zsh_history), file
+mtimes, GitHub API (PRs/reviews), VS Code recent files.
+
+=====================================
+IDEA: isitme
+=====================================
+"Is it me or is it them?"
+When something's broken, immediately tells you if it's local, your
+network, their API, or a global outage.
+
+Example:
+  $ isitme github.com
+  Their DNS: OK | Their server: OK | Your network: OK
+  But: elevated latency from your ISP to GitHub (80ms vs normal 12ms)
+  → It's your ISP
+
+Checks: DNS resolution, TCP connect, HTTP response, traceroute hops,
+isitdownrightnow/statuspage APIs, compares against your baseline.
+
+=====================================
+IDEA: bisect
+=====================================
+"What broke my code?"
+Smarter git bisect that automatically runs your tests and narrows to
+the exact commit AND line that introduced a bug. No manual good/bad
+marking — fully automated.
+
+Builds on: git bisect run, but adds test detection, auto-runner,
+and blame output pointing to the exact line.
+
+=====================================
+IDEA: orient
+=====================================
+"What is this repo?"
+Drop into any unfamiliar codebase and get: what it does, how to run it,
+where the main logic lives, what's broken/TODO — in 10 seconds.
+
+Example:
+  $ orient
+  Node.js REST API, Postgres, JWT auth
+  Entry: src/server.ts | Routes: src/routes/
+  Run: npm run dev (needs .env — see .env.example)
+  3 failing tests, 12 TODOs, last touched: 2 days ago
+
+Detects: package.json/Cargo.toml/pyproject.toml, README, test results,
+git log recency, TODO/FIXME grep, .env.example presence.
+
+=====================================
+EARLIER BRAINSTORM (broader list)
+=====================================
+Developer Workflow:
+- hotfix      : interactive blame + patch + PR in one command
+- changelog   : auto-generate from commit history with scope filtering
+- diff-review : side-by-side diff with inline AI comments
+- dep-audit   : scan deps for CVEs + unused packages + version drift
+
+Monitoring / Observability:
+- log-tail    : structured log streamer with regex filter + color levels
+- health      : parallel ping of all services with latency histogram
+- trace       : distributed trace viewer in terminal (OTEL/Jaeger)
+- alert-silence: bulk silence/ack PagerDuty/OpsGenie alerts from CLI
+
+Database / Data:
+- db-snap     : snapshot + restore for local dev databases
+- query-explain: run query + show execution plan side-by-side
+- migrate-dry : dry-run migrations with row count estimates
+
+CI/CD:
+- pr-ship     : squash, merge, delete branch, notify Slack in one step
+- deploy-status: live tail of deploy pipeline across envs
+- rollback    : one-command rollback to last known good sha
+
+High-Traffic API Tools:
+- rate-check  : test API against rate limits with concurrency control
+- mock-server : instant mock server from OpenAPI spec
+- load-gen    : scriptable load generator with real-time p50/p95/p99

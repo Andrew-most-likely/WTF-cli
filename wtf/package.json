@@ -1,0 +1,22 @@
+{
+  "name": "wtf-cli",
+  "version": "1.0.0",
+  "description": "Why is my computer slow right now? One command that diagnoses CPU, memory, disk, and network.",
+  "bin": { "wtf": "./bin/wtf.js" },
+  "dependencies": {
+    "systeminformation": "^5.23.0"
+  },
+  "engines": { "node": ">=16" },
+  "keywords": ["cli", "system", "performance", "diagnostics", "cpu", "memory", "disk", "network"],
+  "license": "MIT",
+  "author": "Andrew-most-likely",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Andrew-most-likely/tool.git",
+    "directory": "wtf"
+  },
+  "homepage": "https://github.com/Andrew-most-likely/tool/tree/main/wtf#readme",
+  "bugs": {
+    "url": "https://github.com/Andrew-most-likely/tool/issues"
+  }
+}
